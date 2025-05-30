@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Doctors - LifeCare</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">LifeCare</div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="doctors.html">Doctor's</a></li>
+        <li><a href="specialitys.html">Speciality's</a></li>
+        <li><a href="#">Patient Review's</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+ <!-- Doctors Section -->
+<section class="doctor-page">
+    <h1>Our Doctor's</h1>
+    <div class="doctor-list">
+  
+      <!-- Doctor Cards -->
+      <div class="doctor-card" onclick="showPopup('Dr John', 'Spin Surgeon', 'doctor1.jpg', 'Dr. John is a highly skilled and dedicated specialist spine surgeon with extensive experience in diagnosing and treating complex spinal conditions. With a strong commitment to patient care and surgical excellence, Dr. John has successfully performed numerous advanced spinal procedures and is known for his precision, compassion, and professionalism')">
+        <img src="doctor1.jpg" alt="Dr John">
+        <h3>Dr John</h3>
+        <p>Spin Surgeon</p>
+      </div>
+  
+      <div class="doctor-card" onclick="showPopup('Dr Alexa', 'Knee Surgeon', 'doctor2.jpg', 'Dr. Alexa is a distinguished and compassionate knee surgeon, specializing in the diagnosis and treatment of a variety of knee disorders and injuries. With a focus on patient-centered care and exceptional surgical skill, Dr. Alexa has successfully performed numerous advanced procedures, earning a reputation for her accuracy, empathy, and dedication.')">
+        <img src="doctor2.jpg" alt="Dr Alexa Zoan">
+        <h3>Dr Alexa</h3>
+        <p>Knee Surgeon</p>
+      </div>
+  
+      <div class="doctor-card" onclick="showPopup('Dr Sara', 'Knee Surgeon', 'doctor3.jpg', 'Dr. Sara is a highly regarded knee surgeon, known for her expertise in diagnosing and treating a wide range of knee conditions and injuries. With a patient-focused approach and exceptional surgical abilities, Dr. Sara has successfully conducted many advanced surgeries, earning recognition for her precision, care, and commitment. She')">
+        <img src="doctor3.jpg" alt="Dr Sara">
+        <h3>Dr Sara</h3>
+        <p>Knee Surgeon</p>
+      </div>
+  
+      <div class="doctor-card" onclick="showPopup('Dr Flori', 'Knee Surgeon', 'doctor4.jpg', 'Dr. Flori is a respected knee surgeon, renowned for her expertise in diagnosing and treating various knee conditions and injuries. With a strong commitment to patient-centered care and outstanding surgical proficiency, Dr. Flori has performed numerous advanced procedures, earning a reputation for her precision, compassion, and dedication. ')">
+        <img src="doctor4.jpg" alt="Dr Flori">
+        <h3>Dr Flori</h3>
+        <p>Knee Surgeon</p>
+      </div>
+  
+      <div class="doctor-card" onclick="showPopup('Dr Klea', 'Tendon Surgeon', 'doctor5.jpg', 'Dr. Klea is a highly respected tendon surgeon, recognized for her expertise in diagnosing and treating a wide range of tendon injuries and disorders. With a deep commitment to patient-focused care and exceptional surgical skill, Dr. Klea has successfully performed numerous advanced tendon surgeries, earning a reputation for her precision, compassion, and unwavering dedication')">
+        <img src="doctor5.jpg" alt="Dr Klea">
+        <h3>Dr Klea</h3>
+        <p>Tendon Surgeon</p>
+      </div>
+  
+    </div>
+  </section>
+  
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <span class="close-btn" onclick="hidePopup()">×</span>
+    <div class="popup-content">
+      <img id="popup-img" src="" alt="Doctor">
+      <div class="popup-text">
+        <h2 id="popup-name">Doctor Name</h2>
+        <p id="popup-desc">Doctor description here</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Script -->
+  <script>
+    function showPopup(name, title, img, description) {
+      document.getElementById("popup").style.display = "flex";
+      document.getElementById("popup-name").innerText = name;
+      document.getElementById("popup-img").src = img;
+      document.getElementById("popup-desc").innerText = description;
+    }
+  
+    function hidePopup() {
+      document.getElementById("popup").style.display = "none";
+    }
+  </script>
+  
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-column">
+        <h4>About Us</h4>
+        <ul>
+          <li>24 Hour's</li>
+          <li>Top Doctors</li>
+          <li>Best Care</li>
+          <li>Patient</li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Speciality</h4>
+        <ul>
+          <li>Spin Surgery</li>
+          <li>Knee Surgery</li>
+          <li>Leg Surgery</li>
+          <li>Tendon Surgery</li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Best Teams</h4>
+        <ul>
+          <li>Doctor</li>
+          <li>Nursing</li>
+          <li>Staff</li>
+          <li>Hospital</li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Address</h4>
+        <ul>
+          <li>Near MG Road</li>
+          <li>Galaxy Care</li>
+          <li>333-00222</li>
+          <li>2222-4334</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+
+</body>
+</html>
