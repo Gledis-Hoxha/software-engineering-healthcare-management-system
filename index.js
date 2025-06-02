@@ -8,23 +8,19 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Database connection
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'healthcare_management',
-  password: 'yourpassword', // Change this to your PostgreSQL password
+  password: 'yourpassword', 
   port: 5432,
 });
 
-// JWT Secret
-const JWT_SECRET = 'your_jwt_secret'; // In production, use environment variable
+const JWT_SECRET = 'your_jwt_secret'; 
 
-// Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -38,7 +34,6 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Add this near the top, after app initialization
 app.get('/', (req, res) => {
   res.json({ 
     message: "Healthcare API is running",
@@ -46,34 +41,27 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: "/api/login",
       patients: "/api/patients",
-      // Add other key endpoints
     }
   });
 });
 
-// Add error handling middleware to index.js (right before app.listen)
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-// User Registration
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password, role, patientData, providerData } = req.body;
     
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Start transaction
     await pool.query('BEGIN');
     
-    // Insert user
     const userResult = await pool.query(
       'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING id',
       [username, hashedPassword, role]
@@ -81,7 +69,6 @@ app.post('/api/register', async (req, res) => {
     
     const userId = userResult.rows[0].id;
     
-    // Insert role-specific data
     if (role === 'patient' && patientData) {
       await pool.query(
         `INSERT INTO patients (
@@ -116,12 +103,10 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// User Login
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    // Get user from database
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     const user = result.rows[0];
     
@@ -129,14 +114,12 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Check password
     const passwordMatch = await bcrypt.compare(password, user.password);
     
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Generate JWT token
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
       JWT_SECRET,
@@ -150,7 +133,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Get all patients (admin only)
 app.get('/api/patients', authenticateToken, async (req, res) => {
   if (req.user.role !== 'admin') {
     return res.sendStatus(403);
@@ -169,14 +151,11 @@ app.get('/api/patients', authenticateToken, async (req, res) => {
   }
 });
 
-// Get patient by ID
 app.get('/api/patients/:id', authenticateToken, async (req, res) => {
   try {
-    // Only allow if requester is admin, or the patient themselves, or their provider
     const patientId = parseInt(req.params.id);
     
     if (req.user.role === 'patient') {
-      // Get the patient's own user ID
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
         [patientId]
@@ -205,13 +184,11 @@ app.get('/api/patients/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Update patient information
 app.put('/api/patients/:id', authenticateToken, async (req, res) => {
   try {
     const patientId = parseInt(req.params.id);
     const { first_name, last_name, date_of_birth, gender, address, phone, email, insurance_provider, insurance_number } = req.body;
-    
-    // Verify permissions
+
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -251,7 +228,6 @@ app.put('/api/patients/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Get all healthcare providers
 app.get('/api/providers', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(`
@@ -266,7 +242,6 @@ app.get('/api/providers', authenticateToken, async (req, res) => {
   }
 });
 
-// Get provider by ID
 app.get('/api/providers/:id', authenticateToken, async (req, res) => {
   try {
     const providerId = parseInt(req.params.id);
@@ -288,12 +263,10 @@ app.get('/api/providers/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Create appointment
 app.post('/api/appointments', authenticateToken, async (req, res) => {
   try {
     const { patient_id, provider_id, appointment_date, appointment_time, reason } = req.body;
     
-    // Verify permissions - patients can only create their own appointments
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -320,12 +293,10 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
   }
 });
 
-// Get appointments for a patient
 app.get('/api/patients/:id/appointments', authenticateToken, async (req, res) => {
   try {
     const patientId = parseInt(req.params.id);
-    
-    // Verify permissions
+  
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -356,12 +327,10 @@ app.get('/api/patients/:id/appointments', authenticateToken, async (req, res) =>
   }
 });
 
-// Get appointments for a provider
 app.get('/api/providers/:id/appointments', authenticateToken, async (req, res) => {
   try {
     const providerId = parseInt(req.params.id);
-    
-    // Verify permissions
+
     if (req.user.role === 'doctor' || req.user.role === 'nurse') {
       const providerUser = await pool.query(
         'SELECT user_id FROM healthcare_providers WHERE id = $1', 
@@ -389,13 +358,11 @@ app.get('/api/providers/:id/appointments', authenticateToken, async (req, res) =
   }
 });
 
-// Update appointment status
 app.put('/api/appointments/:id/status', authenticateToken, async (req, res) => {
   try {
     const appointmentId = parseInt(req.params.id);
     const { status } = req.body;
-    
-    // Only providers can update status
+
     if (req.user.role !== 'doctor' && req.user.role !== 'nurse') {
       return res.sendStatus(403);
     }
@@ -414,10 +381,8 @@ app.put('/api/appointments/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
-// Create medical record
 app.post('/api/medical-records', authenticateToken, async (req, res) => {
   try {
-    // Only providers can create medical records
     if (req.user.role !== 'doctor' && req.user.role !== 'nurse') {
       return res.sendStatus(403);
     }
@@ -438,12 +403,10 @@ app.post('/api/medical-records', authenticateToken, async (req, res) => {
   }
 });
 
-// Get medical records for a patient
 app.get('/api/patients/:id/medical-records', authenticateToken, async (req, res) => {
   try {
     const patientId = parseInt(req.params.id);
     
-    // Verify permissions
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -476,17 +439,14 @@ app.get('/api/patients/:id/medical-records', authenticateToken, async (req, res)
   }
 });
 
-// Create prescription
 app.post('/api/prescriptions', authenticateToken, async (req, res) => {
   try {
-    // Only providers can create prescriptions
     if (req.user.role !== 'doctor' && req.user.role !== 'nurse') {
       return res.sendStatus(403);
     }
     
     const { patient_id, appointment_id, medication_name, dosage, frequency, duration, instructions } = req.body;
-    
-    // Get provider ID from user ID
+
     const providerResult = await pool.query(
       'SELECT id FROM healthcare_providers WHERE user_id = $1',
       [req.user.id]
@@ -516,12 +476,10 @@ app.post('/api/prescriptions', authenticateToken, async (req, res) => {
   }
 });
 
-// Get prescriptions for a patient
 app.get('/api/patients/:id/prescriptions', authenticateToken, async (req, res) => {
   try {
     const patientId = parseInt(req.params.id);
-    
-    // Verify permissions
+
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -554,10 +512,8 @@ app.get('/api/patients/:id/prescriptions', authenticateToken, async (req, res) =
   }
 });
 
-// Create billing record
 app.post('/api/billing', authenticateToken, async (req, res) => {
   try {
-    // Only admin or staff can create billing records
     if (req.user.role !== 'admin' && req.user.role !== 'staff') {
       return res.sendStatus(403);
     }
@@ -582,12 +538,10 @@ app.post('/api/billing', authenticateToken, async (req, res) => {
   }
 });
 
-// Get billing records for a patient
 app.get('/api/patients/:id/billing', authenticateToken, async (req, res) => {
   try {
     const patientId = parseInt(req.params.id);
     
-    // Verify permissions
     if (req.user.role === 'patient') {
       const patientUser = await pool.query(
         'SELECT user_id FROM patients WHERE id = $1', 
@@ -619,13 +573,11 @@ app.get('/api/patients/:id/billing', authenticateToken, async (req, res) => {
   }
 });
 
-// Update billing status
 app.put('/api/billing/:id/status', authenticateToken, async (req, res) => {
   try {
     const billingId = parseInt(req.params.id);
     const { status, payment_method, payment_date } = req.body;
-    
-    // Only admin or staff can update billing
+
     if (req.user.role !== 'admin' && req.user.role !== 'staff') {
       return res.sendStatus(403);
     }
@@ -646,10 +598,9 @@ app.put('/api/billing/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
-// Get appointment statistics
 app.get('/api/reports/appointments', authenticateToken, async (req, res) => {
   try {
-    // Only admin can view reports
+
     if (req.user.role !== 'admin') {
       return res.sendStatus(403);
     }
@@ -675,10 +626,8 @@ app.get('/api/reports/appointments', authenticateToken, async (req, res) => {
   }
 });
 
-// Get revenue report
 app.get('/api/reports/revenue', authenticateToken, async (req, res) => {
   try {
-    // Only admin can view reports
     if (req.user.role !== 'admin') {
       return res.sendStatus(403);
     }
