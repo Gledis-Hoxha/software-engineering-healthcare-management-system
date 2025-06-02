@@ -1,7 +1,5 @@
--- Database creation
 CREATE DATABASE healthcare_management;
 
--- Users table (for authentication)
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -10,7 +8,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Patients table
 CREATE TABLE patients (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
@@ -26,7 +23,6 @@ CREATE TABLE patients (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Healthcare providers table
 CREATE TABLE healthcare_providers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
@@ -39,7 +35,6 @@ CREATE TABLE healthcare_providers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Appointments table
 CREATE TABLE appointments (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
@@ -52,7 +47,6 @@ CREATE TABLE appointments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Medical records table
 CREATE TABLE medical_records (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
@@ -63,7 +57,6 @@ CREATE TABLE medical_records (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Prescriptions table
 CREATE TABLE prescriptions (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
@@ -78,7 +71,6 @@ CREATE TABLE prescriptions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Billing table
 CREATE TABLE billing (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
